@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="format-detection" content="telephone=no">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+		
+		<title></title>
+		
+	</head>
+	<link rel="stylesheet" href="../css/spine.css" type="text/css">
+<body id="ssc"  class="lhc">
+	<div id="Animation">
+		<header id="headinfo" style="display: block;">
+			<ul>
+				<li class="logoimg">
+					<div class="alllogo"><img width="100%" src="../img/logo.png"></div>
+					<div class="gamelogo"><img  width="100%" src="../img/logo/lhc.png"></div>
+				</li>
+				<li class="qiuhaos">
+					<dl>
+						<dd>
+							<span class=""></span>
+							<p></p>
+						</dd>
+						<dd><span class=""></span></dd>
+						<dd><span class=""></span></dd>
+						<dd><span class=""></span></dd>
+						<dd><span class=""></span></dd>
+						<dd><span class=""></span></dd>
+						<dd><span class=""></span></dd>
+						<dd><span class=""></span></dd>
+						<dd><span class=""></span></dd>
+						<dd><span class=""></span></dd>
+					</dl>
+				</li>
+				<li class="gameinfo">
+					<p class="tip1"><img width="100%" src="../img/tip1.png" /><span id="drawIssue" style="transform: scale(1);top: 0.25vw;"></span></p>
+					<p class="tip2"><img width="100%" src="../img/tip2.png" /><span id="daojitime"style="font-size: 4vw;transform: scale(0.55);left:5.75vw;top:-0.25vw"></span></p>
+					<p class="tip3" style="display: none;"><img width="60%" src="../img/tip3.png" /></span></p>
+				</li>
+			</ul>
+		</header>
+	</div>
+	<script src="../js/jquery-3.1.0.min.js"></script>
+	
+<script>
+	var hostUrl = "http://1.cc138001.com/"
+	var saiche = {
+		getData:{},
+		get_game_timmer:null,
+		drawTime:null,
+		isRefreshGetData:true,
+		init:function(){
+			var _this = this;
+			this.refresh();
+		},
+		refresh:function(){
+			var _this = this;
+			if(this.get_game_timmer)
+			{
+				clearInterval(this.get_game_timmer)
+				this.get_game_timmer = null;
+			}
+			if(this.player_timmers)
+			{
+				clearInterval(this.player_timmers)
+				this.player_timmers = null;
+			}
+			
+			this.getGame();
+			this.get_game_timmer = setInterval(function() {
+				_this.getGame();
+			}, 15000); 
+		},
+		refreshPlay:function()
+		{
+			var me = this;
+			clearInterval(me.get_game_timmer)
+			me.get_game_timmer = null;
+			clearInterval(me.player_timmers)
+			me.player_timmers = null;
+			me.getGame();
+			me.get_game_timmer = setInterval(function() {
+				me.getGame();
+			}, 15000); 
+		},
+		getGame: function() {
+			var _this = this;
+			$.ajax({
+		         url: hostUrl +"index.php?r=sys/server-time",
+		         type: "GET",
+		         dataType: "jsonp",
+		         jsonpCallback: "showData",  //指定回调函数名称
+		         success: function (res) {
+		         	if(res)
+		         	{
+		         		_this.getKJinfo(res)
+		         	}else
+		         	{
+		         		_this.getGame();
+		         	}
+		            
+		         },
+		         error: function () {
+		         	_this.getGame();
+		         }
+		  });
+		},
+		getKJinfo: function(res) {
+			var _this = this;
+			$.ajax({
+		         url: hostUrl +"kaijiang/lhc.json?v="+(new Date().getTime()),
+		         type: "GET",
+		         dataType: "json",
+		         success: function (data) {
+		         	_this.getData = data
+		         	if(!data)
+		         	{
+		         		//如果没有数据，那么重新获取
+		         		_this.getGame();
+		         	}
+		         	if(data.drawTime != _this.drawTime)
+					{
+						_this.setData(data)
+					}
+					var djstime = parseInt(new Date( data.drawTime.replace(/-/g, '/')).getTime()/1000);    // 当前时间戳
+					djstime = djstime - res.server_time
+		         	
+		         	
+		         	if(_this.drawTime && data.drawTime != _this.drawTime)
+		         	{
+		         		_this.refreshPlay()
+		         	}else{
+		         		//开盘状态需要倒计时
+		         		_this.countDown(djstime,data);
+						
+		         	}
+		         	_this.drawTime = data.drawTime
+		         	djstime = null
+		         },
+		         error: function () {
+		         	_this.getKJinfo(res);
+		         }
+			});
+		},
+		countDown:function (djstime,data) {
+			
+			var _this = this
+			_this.setMyTime(djstime,data);
+			if(_this.player_timmers)
+			{
+				clearInterval(_this.player_timmers);
+				_this.player_timmers = null;
+			}
+			
+			_this.player_timmers = setInterval(function(){
+				djstime--;
+				_this.setMyTime(djstime,data);
+			},1000);
+		},
+		setMyTime:function (time,data) {
+			var _this = this;
+			
+			if(time<=0)
+			{
+				$("#daojitime").html("")
+				$(".tip2").hide()
+				$(".tip3").show()
+				if(_this.isRefreshGetData)
+				{
+					
+					_this.isRefreshGetData = false
+					var t=null
+					t = setTimeout(function(){
+						_this.refreshPlay()
+						clearTimeout(t)
+						t = null
+						_this.isRefreshGetData = true
+					},1000)
+					
+				}
+			}else
+			{
+				var drawTime = data.drawTime.substr(10,6);
+				$("#daojitime").html(time);
+				$(".tip2").show()
+				$(".tip3").hide()
+			}
+		},
+		setData : function(data){
+			var _this = this
+			if(_this.urlType != "game"){
+				//当前期数
+				
+				$("#drawIssue").html(data.drawIssue)
+				$(".qiuhaos dl").html("")
+				var i = 0;
+				var htm = ""
+				
+				for(i;i<8;i++)
+				{
+					if(i == 6)
+					{
+						htm += '<dd>';
+						htm += '	<span class="fuhao">+</span>';
+						htm += '</dd>'
+					}else{
+						var ii = i
+						if(i == 7)
+						{
+							ii = 6
+						}
+						htm += '<dd>';
+						htm += '	<span class=""><img src="./img/'+ parseInt(data.code[ii]) +'.png"/></span>';
+						htm += '	<p>'+ data.shengxiao[ii] +'</p>';
+						htm += '</dd>'
+					}
+				}
+				$(".qiuhaos dl").html(htm)
+				$(".qiuhaos dl").show()
+			}
+		}
+	}
+	$(document).ready(function(){
+	 	saiche.init()
+	});
+
+	
+	
+	
+	
+</script>
+</body>
+</html>

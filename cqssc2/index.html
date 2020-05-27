@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="format-detection" content="telephone=no">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+		
+		<title></title>
+		<style>
+			#ygsc .fantan,
+			#ygsc .notfantan{
+				display: none;
+			}
+		</style>
+	</head>
+	<link rel="stylesheet" href="../css/spine.css" type="text/css">
+<body id="ssc">
+	
+	<div id="Animation">
+		<header id="headinfo">
+			<ul>
+				<li class="logoimg">
+					<div class="alllogo"><img width="100%" src="../img/logo.png"></div>
+					<div class="gamelogo "><img  width="100%" src="../img/logo/cqhlsx.png"></div>
+				</li>
+				<li class="qiuhaos">
+					<dl>
+						<dd><span class=""></span></dd>
+						<dd><span class=""></span></dd>
+						<dd><span class=""></span></dd>
+						<dd><span class=""></span></dd>
+						<dd><span class=""></span></dd>
+					</dl>
+				</li>
+				<li class="fantan">
+					<div>
+						<span id="fantan1"></span>
+					</div>
+					<div>
+						<span id="fantan2"></span>
+					</div>
+				</li>
+				<li class="gameinfo">
+					<p class="tip1"><img width="100%" src="../img/tip1.png" /><span id="drawIssue" style=""></span></p>
+					<p class="tip2"><img width="100%" src="../img/tip2.png" /><span id="daojitime" style="font-size: 3vw;top:-0.035vw"></span></p>
+					<p class="tip3" style="display: none;"><img width="60%" src="../img/tip3.png" /></span></p>
+				</li>
+			</ul>
+		</header>
+		<div class="winNum">
+			<ul>
+				<li id="num_no0"><span></span></li>
+				<li id="num_no1"><span></span></li>
+				<li id="num_no2"><span></span></li>
+				<li id="num_no3"><span></span></li>
+				<li id="num_no4"><span></span></li>
+			</ul>
+		</div>
+		<div id="gameCanvas"></div>
+		<div id="loading">
+			<img src="../img/loading2.gif" />
+		</div>
+	</div>
+	
+	<script src="../js/jquery-3.1.0.min.js"></script>
+	<script src="../js/three.min.js"></script>
+    <!-- <script src="../js/Stats.js"></script>-->
+	<script src="../js/spine-threejs.js"></script>
+	<script src="../js/my-new-scene.js"></script>
+<script>
+	
+	var saiche = {
+		sence:null,
+		vdata:{},
+		fantan:"0",//是否蕃摊0不是；1是
+		getData:{},
+		urlType:"all",
+		isPlaySence:false,//默认没有播放动画
+		get_game_timmer:null,
+		drawTime:null,
+		isRefreshGetData:true,
+		init:function(){
+			var _this = this;
+			
+			var canshu = location.href.split('?')[1];
+			if(canshu)
+			{
+				canshu = canshu.split("&");
+				$.each(canshu,function(i,v){
+					if(v&&(/^fantan=/).test(v)){
+						_this.fantan = v.replace('fantan=', '');
+					}
+					if(v&&(/^type=/).test(v)){
+						_this.urlType = v.replace('type=', '');
+					}
+				})
+			}
+			
+			this.initPage();
+			this.initData();
+			this.sence = new mySence(this.vdata);
+			
+			this.refresh();
+			this.bind();
+		},
+		initPage:function(){
+			if(this.urlType == "game")
+			{
+				$("#headinfo").hide()
+			}else
+			{
+				$("#headinfo").show()
+			}
+			if(this.fantan == "1")
+			{
+				$("#Animation").addClass("Animation_ft")
+				$(".fantan").show()
+				$(".notfantan").hide()
+			}else
+			{
+				$(".fantan").hide()
+				$(".notfantan").show()
+			}
+		},
+		bind:function(){
+			var _this = this;
+			$(window).resize(function () {
+				_this.sence.resize();
+			})
+			document.addEventListener("visibilitychange", function(){
+		        if(document.hidden){
+		            //这里写切换到后台的时候要保存的东西
+		        }else{
+		        	_this.resetplay()
+		            //这里写重后台返回来的时候触发的方法    
+		        }
+		    });
+		},
+		initData:function(){
+			var i = 0
+			var dxdsChild = {}
+			for(i;i<5;i++)
+			{
+				var x2 = 287.5+(145*i)
+				dxdsChild["dx"+i] = {
+					id:20+i,
+					animationame: "big",
+					x: x2,
+					y: -350,
+					z: 20,
+					play:false,
+					visible:false
+				}
+				dxdsChild["ds"+i] = {
+					id:20+i,
+					animationame: "Singular",
+					x: x2,
+					y: -537.5,
+					z: 20,
+					play:false,
+					visible:false
+				}
+			}
+			var gameData = {
+				mainpage:{
+					filename: "mainpage",
+					visible:true,
+					child:{
+						mainpage:{
+							id:2,
+							animationame: "standby",
+							x: 0,
+							y: 0,
+							z: -1,
+							child:null,
+							play:false,
+							visible:true
+						}
+					}
+				},
+				dxds:{
+					filename: "dxds",
+					visible:false,
+					child:dxdsChild
+				}
+			}
+			if(this.urlType == "head")
+			{
+				this.vdata = {}
+			}else
+			{
+				this.vdata = gameData
+			}
+		},
+		refresh:function(){
+			var _this = this;
+			if(this.get_game_timmer)
+			{
+				clearInterval(this.get_game_timmer)
+				this.get_game_timmer = null;
+			}
+			if(this.player_timmers)
+			{
+				clearInterval(this.player_timmers)
+				this.player_timmers = null;
+			}
+			
+			this.getGame();
+			this.get_game_timmer = setInterval(function() {
+				_this.getGame();
+			}, 15000); 
+		},
+		refreshPlay:function()
+		{
+			var me = this;
+			clearInterval(me.get_game_timmer)
+			me.get_game_timmer = null;
+			clearInterval(me.player_timmers)
+			me.player_timmers = null;
+			me.getGame();
+			me.get_game_timmer = setInterval(function() {
+				me.getGame();
+			}, 15000); 
+		},
+		getGame: function() {
+			var _this = this;
+			$.ajax({
+		         url: hostUrl +"index.php?r=sys/server-time",
+		         type: "GET",
+		         dataType: "jsonp",
+		         jsonpCallback: "showData",  //指定回调函数名称
+		         success: function (res) {
+		         	if(res)
+		         	{
+		         		_this.getKJinfo(res)
+		         	}else
+		         	{
+		         		_this.getGame();
+		         	}
+		            
+		         },
+		         error: function () {
+		         	_this.getGame();
+		         }
+		  });
+		},
+		getKJinfo: function(res) {
+			var _this = this;
+			$.ajax({
+		         url: hostUrl +"kaijiang/cqssc.json?v="+(new Date().getTime()),
+		         type: "GET",
+		         dataType: "json",
+		         success: function (data) {
+		         	_this.getData = data
+		         	if(!data)
+		         	{
+		         		//如果没有数据，那么重新获取
+		         		_this.getGame();
+		         	}
+		         	if(data.drawTime != _this.drawTime)
+					{
+						_this.setData(data)
+					}
+					var djstime = parseInt(new Date( data.drawTime.replace(/-/g, '/')).getTime()/1000);    // 当前时间戳
+					djstime = djstime - res.server_time
+		         	
+		         	
+		         	if(_this.drawTime && data.drawTime != _this.drawTime)
+		         	{
+		         		
+		         		//如果原来的期数已经设置并存在，
+		         		//并且和新获取的期数时间不一样
+		         		//说明已经开奖
+		         		if(_this.sence.getIsPlay("mainpage","start")  || _this.urlType == "head")
+		         		{
+		         			_this.showWin(data)
+		         		}
+		         		
+		         		
+		         	}else{
+		         		//开盘状态需要倒计时
+		         		_this.countDown(djstime,data);
+						
+		         	}
+		         	_this.drawTime = data.drawTime
+		         	djstime = null
+		         },
+		         error: function () {
+		         	_this.getKJinfo(res);
+		         }
+			});
+		},
+		countDown:function (djstime,data) {
+			
+			var _this = this
+			_this.setMyTime(djstime,data);
+			if(_this.player_timmers)
+			{
+				clearInterval(_this.player_timmers);
+				_this.player_timmers = null;
+			}
+			
+			_this.player_timmers = setInterval(function(){
+				djstime--;
+				_this.setMyTime(djstime,data);
+			},1000);
+		},
+		setMyTime:function (time,data) {
+			var _this = this;
+			if(time == 0 )
+			{
+				_this.isPlaySence = false
+			}
+			if(time<0)
+			{
+				$("#daojitime").html("")
+				
+				if(_this.isRefreshGetData)
+				{
+					
+					_this.isRefreshGetData = false
+					var t=null
+					t = setTimeout(function(){
+						_this.refreshPlay()
+						clearTimeout(t)
+						t = null
+						_this.isRefreshGetData = true
+					},1000)
+					
+				}
+				//return false;
+			}else
+			{
+				
+				if(_this.urlType != "game")
+				{
+					var drawTime = data.drawTime.substr(10,6);
+					$("#daojitime").html(time);
+				}
+			}
+			//如果倒计时4秒，那么就需要跑车了，开关打开
+			if( _this.sence.getloadIsComplete())
+			{
+				//如果当前动画还未播放
+				if(!_this.isPlaySence)
+				{
+					_this.isPlaySence = true
+					if(time <= 0)
+					{
+						//倒计时到第四秒的时候就需要跑车了
+						_this.paoche()
+					}else
+					{
+						//如果倒计时>4，那么要一直显示车载等待状态
+						_this.standby()
+					}
+				}
+			}
+		},
+		standby: function(res) {
+			//显示等待状态
+			this.sence.addplay("mainpage","standby",true)
+			if(this.urlType != "game"){
+				$(".tip2").show()
+				$(".tip3").hide()
+			}
+			
+		},
+		paoche: function(res) {
+			var _this = this
+			var basetime = 0
+			
+			//解决开门直接打开问题
+			if(_this.sence.getIsPlay("mainpage","standby"))
+     		{
+     			this.sence.addplay("mainpage","start",false)
+     		}else
+     		{
+     			basetime = 500
+     			this.sence.addplay("mainpage","standby",true)
+     			var t = setTimeout(function(){
+					_this.sence.addplay("mainpage","start",false)
+					clearTimeout(t)
+					t=null
+				},basetime)
+     		}
+			//开始准备跑
+			
+			var t2 = null;
+			//四秒后
+			t2 = setTimeout(function(){
+				//右上角显示等待开奖字样
+				if(_this.urlType != "game"){
+					$(".tip2").hide()
+					$(".tip3").show()
+				}
+				clearTimeout(t2)
+				t2=null
+			},basetime+1000)
+			
+//			var t3=null
+//			t3 = setTimeout(function(){
+//				_this.showWin(_this.getData)
+//				clearTimeout(t3)
+//				t3 = null
+//			},basetime+10000)
+		},
+		showWin : function(data){
+			var _this = this;
+			_this.sence.addplay("mainpage","open",false)
+			if(this.urlType != "head")
+			{
+				var i;
+				$(".winNum span").removeClass()
+				for(i in data.code){
+					var x = 115+(58*i)
+					var code = parseInt(data.code[i])
+					$("#num_no"+(i)+" span").addClass("n"+code)
+					
+					//_this.sence.addImg("img/"+data.code[i]+".png","kjnum"+i,x,-177,23,38,38)
+					if(code >= 5)
+					{
+						_this.sence.addplay("dx"+i,"big",true)
+					}else
+					{
+						_this.sence.addplay("dx"+i,"small",true)
+					}
+					
+					if((data.code[i])%2 ==0)
+					{
+						_this.sence.addplay("ds"+i,"Evennumbers",false)
+					}else
+					{
+						_this.sence.addplay("ds"+i,"Singular",false)
+					}
+				}
+				var t = null;
+				t = setTimeout(function(){
+					_this.sence.setVisibleForGroup("dxds",true)
+					$(".winNum").show()
+					clearTimeout(t)
+					t=null
+				},500)
+			}
+			var t1 = null;
+			t1 = setTimeout(function(){
+				_this.sence.resetGroup(["dxds"])
+				$(".winNum").hide()
+				clearTimeout(t1)
+				t1=null
+			},2500)
+			//10秒后，重置游戏画面，说明结束画面你用了15秒
+			var t2 = null
+			t2 = setTimeout(function(){
+				_this.resetplay()
+				clearTimeout(t2)
+				t2=null
+			},3300)
+			
+		},
+		resetplay : function(){
+			this.showHideWinNum()
+			this.sence.resetPlays(["mainpage"])
+			this.refreshPlay()
+			this.isPlaySence = false
+			
+		},
+		showHideWinNum: function(type,no1,no2,no3){
+			if(this.urlType != "head")
+			{
+				var type = arguments[0]
+				if(type == "show")
+				{
+					var no1 = parseInt(arguments[1]);
+					var no2 = parseInt(arguments[2]);
+					var no3 = parseInt(arguments[3]);
+					
+					$("#fix_no1").addClass("n" + no1);
+					$("#fix_no2").addClass("n" + no2);
+					$("#fix_no3").addClass("n" + no3);
+					
+					$(".winFix").show()
+				}else
+				{
+					$(".winFix").hide()
+				}
+			}
+		},
+		setData : function(data){
+			var _this = this
+			if(_this.urlType != "game"){
+				//当前期数
+				
+				$("#drawIssue").html(data.drawIssue)
+				if(_this.fantan == "1")
+				{
+					var fan = parseInt(data.code[0]) + parseInt(data.code[1]) + parseInt(data.code[2]) + parseInt(data.code[3]) + parseInt(data.code[4])
+					$("#fantan2").html(fan)
+					fan = fan%4
+					if(fan == 0)
+					{
+						fan = 4
+					}
+					$("#fantan1").html(fan)
+				}
+				var i = 0
+				for(i;i<5;i++)
+				{
+					var qiuhao = $(".qiuhaos dd:eq("+i+") span")
+					qiuhao.removeClass()
+					qiuhao.addClass("n"+parseInt(data.code[i]))
+				}
+				$(".qiuhaos dl").show()
+			
+			}
+		}
+	}
+	$(document).ready(function(){
+	 	saiche.init()
+	});
+
+	
+	
+	
+	
+</script>
+</body>
+</html>

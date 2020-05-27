@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="format-detection" content="telephone=no">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+		<title></title>
+		
+	</head>
+	<style>
+		* { margin: 0; padding: 0; list-style: none;font-family: "微软雅黑";}
+		#Animation{
+			position: relative;
+		}
+		#gameCanvas{
+			float: left;
+		}
+		.timeDJS{
+			position: absolute; width: 100% ;height: 100%;
+			background: rgba(0,0,0,0.1);
+			z-index: 2;
+			text-align: center;
+		}
+		.timeDJS span{
+			color: #fff;
+			font-size: 3.5em;
+			font-weight: bold;
+		}
+		#loading{
+			position: absolute; width: 100% ;height: 100%;
+			background: rgba(0,0,0,0.1);
+			z-index: 2;
+			text-align: center;
+			line-height: 10em;
+		}
+	</style>
+<body>
+	<div id="headCanvas"></div>
+	<div id="Animation">
+		<div id="gameCanvas"></div>
+		<div id="loading">
+			<img src="../img/loading2.gif" />
+		</div>
+		<!--<div class="timeDJS"><span id="daojishi"></span></div>-->
+	</div>
+	<script src="../js/jquery-3.1.0.min.js"></script>
+	<script src="../js/three.min.js"></script>
+	<script src="../js/spine-threejs.js"></script>
+	<script src="../js/my-scene.js"></script>
+<script>
+	
+	var saiche = {
+		sence:null,
+		vdata:{},
+		getData:{},
+		urlType:"all",
+		isPlaySence:false,//默认没有播放动画
+		get_game_timmer:null,
+		drawTime:null,
+		isRefreshGetData:true,
+		fj_timmer:null,//飞机定时器
+		fj_time:0,//飞机飞了几秒
+		init:function(){
+			var _this = this;
+			
+			var canshu = location.href.split('?')[1];
+			if(canshu)
+			{
+				canshu = canshu.split("&");
+				$.each(canshu,function(i,v){
+					
+					if(v&&(/^type=/).test(v)){
+						_this.urlType = v.replace('type=', '');
+					}
+				})
+			}
+			//console.log(this.vdata)
+			this.initData()
+			this.sence = new mySence(this.vdata,[
+				{
+					name:"qiuhao",
+					img:"../img/shuzi_max.png"
+				}
+			]);
+			this.sence.resetSpeed("onecar")
+			this.showtitle();
+			this.refresh();
+			this.bind();
+		},
+		bind:function(){
+			var _this = this;
+			$(window).resize(function () {
+				_this.sence.resize();
+			})
+			document.addEventListener("visibilitychange", function(){
+       
+		        if(document.hidden){
+		            //这里写切换到后台的时候要保存的东西
+		            
+		        }else{
+		        	
+		        	_this.resetplay()
+		            //这里写重后台返回来的时候触发的方法    
+		        }
+		    });
+		},
+		showtitle:function(){
+			if(this.urlType != "game"){
+				this.sence.addImg("../img/BG.png","bg",0,0,20,1160,100)
+				this.sence.addImg("../img/logo.png","logoImg",16,-28,21,30,30)
+				this.sence.addImg("../img/logo_13.png","logoName",94,-28,22,130,34)
+				this.sence.addImg("../img/tip1.png","tip1",425,-15,23,74,10)
+				
+			}
+		},
+		initData:function(){
+			var i = 0
+			var carChild = {}
+			for(i;i<11;i++)
+			{
+				var y = 153+(15*i)
+				var carnum = (i+1)
+				carChild["car"+carnum] = {
+					id:20+i,
+					animationame: "run",
+					x: 0,
+					y: -y,
+					z: 0+i,
+					qiuhao: carnum,
+					speedx:1,
+					play:true,
+					loop:true,
+					fixed:false,
+					//scale:0.9,
+					visible:true
+				}
+			}
+			
+			var mainpageChild = {
+				mainpage:{
+					id:2,
+					animationame: "standby",
+					x: 0,
+					y: 0,
+					z: -1,
+					child:null,
+					play:true,
+					loop:true,
+					visible:true
+				},
+				ready:{
+					id:2,
+					animationame: "ready",
+					x: 0,
+					y: -30,
+					z: 1,
+					child:null,
+					play:false,
+					visible:false
+				},
+				end:{
+					id:2,
+					animationame: "end",
+					x: 0,
+					y: 0,
+					z: 3,
+					child:null,
+					play:false,
+					speedx:-3,
+					fixed:true,
+					leftEnd : -80,
+					visible:false
+				}
+			}
+			var ii = 1
+			for(ii;ii<=6;ii++)
+			{
+				var x = (Math.random()* 500) - 200;
+				var y = (Math.random()* 100)-50;
+				mainpageChild["start"+ii] = {
+					id:33+ii,
+					animationame: "start",
+					x: x,
+					y: y,
+					z: 15,
+					child:null,
+					play:false,
+					visible:false
+				}
+			}
+			var gameData = {
+				mainpage:{
+					filename: "mainpage",
+					child:mainpageChild
+				},
+				onecar:{
+					filename: "onecar",
+					child:carChild
+				}
+			}
+			if(this.urlType == "head")
+			{
+				this.vdata = {}
+			}else
+			{
+				this.vdata = gameData
+			}
+		},
+		refresh:function(){
+			var _this = this;
+			if(this.get_game_timmer)
+			{
+				clearInterval(this.get_game_timmer)
+				this.get_game_timmer = null;
+			}
+			if(this.player_timmers)
+			{
+				clearInterval(this.player_timmers)
+				this.player_timmers = null;
+			}
+			
+			this.getGame();
+			this.get_game_timmer = setInterval(function() {
+				_this.getGame();
+			}, 15000); 
+		},
+		refreshPlay:function()
+		{
+			var me = this;
+			clearInterval(me.get_game_timmer)
+			me.get_game_timmer = null;
+			clearInterval(me.player_timmers)
+			me.player_timmers = null;
+			me.getGame();
+			me.get_game_timmer = setInterval(function() {
+				me.getGame();
+			}, 15000); 
+		},
+		getGame: function() {
+			var _this = this;
+			$.ajax({
+		         url: hostUrl +"index.php?r=sys/server-time",
+		         type: "GET",
+		         dataType: "jsonp",
+		         jsonpCallback: "showData",  //指定回调函数名称
+		         success: function (res) {
+		         	if(res)
+		         	{
+		         		_this.getKJinfo(res)
+		         	}else
+		         	{
+		         		_this.getGame();
+		         	}
+		         },
+		         error: function () {
+		         	_this.getGame();
+		         }
+		  });
+		},
+		getKJinfo: function(res) {
+			var _this = this;
+			$.ajax({
+		         url: hostUrl +"kaijiang/js11x5.json?v=1558406231542",
+		         type: "GET",
+		         dataType: "json",
+		         success: function (data) {
+		         	_this.getData = data
+		         	if(!data)
+		         	{
+		         		//如果没有数据，那么重新获取
+		         		_this.getGame();
+		         	}
+		         	if(data.drawTime != _this.drawTime)
+					{
+						//_this.setData(data)
+					}
+					var djstime = parseInt(new Date( data.drawTime.replace(/-/g, '/')).getTime()/1000);    // 当前时间戳
+					djstime = djstime - res.server_time
+		         	
+		         	
+		         	if(_this.drawTime && data.drawTime != _this.drawTime)
+		         	{
+		         		//console.log(djstime)
+		         		//如果原来的期数已经设置并存在，
+		         		//并且和新获取的期数时间不一样
+		         		//说明已经开奖
+		         		if(_this.fj_timmer != null)//如果飞机还在非，就播放开奖动画
+						{
+			         		_this.showWin(data)
+			         	}
+		         		
+		         		
+		         	}else{
+		         		//开盘状态需要倒计时
+		         		_this.countDown(djstime,data);
+						
+		         	}
+		         	_this.drawTime = data.drawTime
+		         	djstime = null
+		         },
+		         error: function () {
+		         	_this.getKJinfo(res);
+		         }
+			});
+		},
+		countDown:function (djstime,data) {
+			
+			var _this = this
+			_this.setMyTime(djstime,data);
+			if(_this.player_timmers)
+			{
+				clearInterval(_this.player_timmers);
+				_this.player_timmers = null;
+			}
+			
+			_this.player_timmers = setInterval(function(){
+				djstime--;
+				_this.setMyTime(djstime,data);
+			},1000);
+		},
+		setMyTime:function (time,data) {
+			var _this = this;
+			_this.fj_time++
+			if(time == 0 )
+			{
+				_this.isPlaySence = false
+			}
+			if(time<0)
+			{
+				
+				//$("#daojishi").hide()
+				_this.sence.clearText(["daojitime"])
+				if(_this.isRefreshGetData)
+				{
+					
+					_this.isRefreshGetData = false
+					var t=null
+					t = setTimeout(function(){
+						_this.refreshPlay()
+						clearTimeout(t)
+						t = null
+						_this.isRefreshGetData = true
+					},1000)
+					
+				}
+				//return false;
+			}else
+			{
+				
+				if(_this.urlType != "game")
+				{
+					var drawTime = data.drawTime.substr(10,6);
+					_this.sence.addText("daojitime",""+time,436,-38,12,"#ffdd00")
+					drawTime = null
+				}
+				//$("#daojishi").show()
+			}
+			
+			//如果倒计时4秒，那么就需要跑车了，开关打开
+			if( _this.sence.getloadIsComplete())
+			{
+				//如果当前动画还未播放
+				if(!_this.isPlaySence)
+				{
+					//
+					_this.isPlaySence = true
+					if(time <= 0)
+					{
+						_this.setData(data,"qishu")
+						//倒计时到第四秒的时候就需要跑车了
+						_this.paoche()
+					}else
+					{
+						_this.setData(data)
+						//如果倒计时>4，那么要一直显示车载等待状态
+						_this.standby()
+					}
+					return
+				}
+				
+			}
+		},
+		standby: function(res) {
+			var _this = this
+			//_this.resetplay()
+			//显示等待状态
+			//this.sence.addplay("mainpage","standby",true)
+			if(this.urlType != "game"){
+				this.sence.addImg("../img/tip2.png","tip2",425,-38,23,74,10)
+			}
+		},
+		paoche: function(res) {
+			var _this = this
+			_this.clearQiuhao()
+			this.sence.changeSpeed("onecar",2)
+			//开始准备跑
+			if(_this.fj_timmer != null)
+			{
+				clearInterval(_this.fj_timmer)
+				_this.fj_timmer = null
+			}
+			_this.sence.addplay("ready","ready",false)
+			_this.fj_timmer = setInterval(function(){
+				_this.fj_time = 0
+				_this.sence.addplay("ready","ready",false)
+			},5000)
+			
+			
+			var t2 = null;
+			//四秒后
+			t2 = setTimeout(function(){
+				//右上角显示等待开奖字样
+				if(_this.urlType != "game"){
+					_this.sence.addImg("../img/tip3.png","tip2",407,-38,23,35,10)
+				}
+				clearTimeout(t2)
+				t2=null
+			},1000)
+			
+//			var t3=null
+//			t3 = setTimeout(function(){
+//				_this.showWin(_this.getData)
+//				clearTimeout(t3)
+//				t3 = null
+//			},1000)
+		},
+		zhaCars : function(data){
+			var _this = this;
+			
+			
+			for(var i in data)
+			{
+				var carnum = parseInt(i)+1
+				_this.sence.resetXYFromeOther("start"+carnum,data[i],"onecar",-200,280,function(){
+					_this.sence.addplay("start"+carnum,"start",true)
+				})
+				
+			}
+			var t1 = null;
+			t1 = setTimeout(function(){
+				_this.sence.setEmptyAnimations(data)
+				clearTimeout(t1)
+				t1=null
+			},1200)
+			var t2 = null;
+			t2 = setTimeout(function(){
+				_this.sence.resetPlays(["start1","start2","start3","start4","start5","start6"])
+				clearTimeout(t2)
+				t2=null
+			},1500)
+		},
+		showWin : function(data){
+			var _this = this;
+			//飞机播放完最后一遍，就不让播放了
+			if(_this.fj_timmer != null)
+			{
+				clearInterval(_this.fj_timmer)
+				_this.fj_timmer = null
+				
+			}
+			
+			var baseTime = (5 - _this.fj_time)*1000//飞机还有几秒飞完
+			var t = setTimeout(function(){
+				_this.sence.setEmptyAnimations(["ready"])
+				var zhacars = []
+				_this.sence.addplay("end","end",false)
+				var i=1;
+				for(i;i<=11;i++)
+				{
+					var code = i
+					if(code<10){
+					  code =  '0'+code;
+					}
+					if(data.code.indexOf(""+code)>-1)
+					{
+						_this.sence.setchildData({name:"car"+i,data:{speedx : 3,fixed : true,rightEnd : window.innerWidth+30}})
+						
+					}else
+					{
+						zhacars.push("car"+i)
+						
+					}
+				}
+				_this.zhaCars(zhacars)
+				clearTimeout(t)
+				t=null
+			},baseTime)
+			
+			var t1 = null;
+			t1 = setTimeout(function(){
+				//跑道动画停止
+				_this.sence.clearTrack("mainpage","standby",false)
+				var i;
+				for(i in data.code){
+					var code = parseInt(data.code[i]);
+					_this.sence.addplay("car"+code,"standby",true)
+				}
+				_this.setData(data)
+				clearTimeout(t1)
+				t1=null
+			},baseTime+2000);
+			
+			//10秒后，重置游戏画面，说明结束画面你用了15秒
+			var t3 = null
+			t3 = setTimeout(function(){
+				_this.resetplay()
+				clearTimeout(t3)
+				t3=null
+			},baseTime+5500)
+			
+		},
+		resetplay : function(){
+			if(_this.fj_timmer != null)
+			{
+				clearInterval(_this.fj_timmer)
+				_this.fj_timmer = null
+				
+			}
+			this.sence.resetGroup(["onecar","mainpage"])
+			this.sence.resetSpeed("onecar")
+			this.refreshPlay()
+			this.isPlaySence = false
+			//$("#daojishi").show()
+		},
+		clearQiuhao : function(){
+			var i = 0;
+			var ar = []
+			for(i;i<5;i++)
+			{
+				ar.push("num"+i)
+			}
+			this.sence.clearImg(ar)
+		},
+		setData : function(){
+			var data = arguments[0]
+			var type = "all"
+			if(arguments[1])
+			{
+				type = arguments[1]
+			}
+			var _this = this
+			if(_this.urlType != "game"){
+				var loadIsComplete= _this.sence.getloadIsComplete()
+				if(loadIsComplete)
+				{
+					if(type == "qishu" || type == "all")
+					{
+						//当前期数
+						_this.sence.addText("drawIssue",""+data.drawIssue,425,-15,5.5,"#ffdd00")
+					}
+					
+					if(type == "qiuhao" || type == "all")
+					{
+						var i = 0;
+						for(i;i<5;i++)
+						{
+							var x = 195+(38*i);
+							var vec = _this.getvec(parseInt(data.code[i]))
+						
+							_this.sence.addMaterial("qiuhao","num"+i,32,32,vec,x,-27,23)
+							//_this.sence.addImg("../img/shuzi/"+parseInt(data.code[i])+".png","topnum"+i,x,-27,23,28,28);
+							//_this.sence.addImg("img/"+parseInt(data.code[i])+".png","topnum"+i,x,-28,23,29,34);
+						}
+					}
+				}
+			
+			}
+			
+		},
+		getvec : function(code){
+			var oneh = 1/6
+			var line1 = 1
+			var line2 = oneh*5
+			var line3 = oneh*4
+			var line4 = oneh*3
+			var line5 = oneh*2
+			var line6 = oneh
+			var line7 = 0
+			if(code == "0")
+			{
+				
+				return [0,line1,0,line2,.5,line2,.5,line1,]
+			}else if(code == "1"){
+				return [0.5,line1,0.5,line2,1,line2,1,line1,]
+			}else if(code == "2"){
+				return [0,line2,0,line3,.5,line3,.5,line2,]
+			}else if(code == "3"){
+				return [0.5,line2,0.5,line3,1,line3,1,line2,]
+			}else if(code == "4"){
+				return [0,line3,0,line4,.5,line4,.5,line3,]
+			}else if(code == "5"){
+				return [0.5,line3,0.5,line4,1,line4,1,line3,]
+			}else if(code == "6"){
+				return [0,line4,0,line5,.5,line5,.5,line4,]
+			}else if(code == "7"){
+				return [0.5,line4,0.5,line5,1,line5,1,line4,]
+			}else if(code == "8"){
+				return [0,line5,0,line6,.5,line6,.5,line5,]
+			}else if(code == "9"){
+				return [0.5,line5,0.5,line6,1,line6,1,line5,]
+			}else if(code == "10"){
+				return [0,line6,0,line7,.5,line7,.5,line6,]
+			}else if(code == "11"){
+				return [0.5,line6,0.5,line7,1,line7,1,line6,]
+			}
+		}
+	}
+	$(document).ready(function(){
+	 	saiche.init()
+	});
+
+	
+	
+	
+	
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+
+mainpage.png
+size: 2048,2048
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+bg1
+  rotate: false
+  xy: 2, 539
+  size: 1160, 394
+  orig: 1160, 394
+  offset: 0, 0
+  index: -1
+bg2
+  rotate: false
+  xy: 2, 935
+  size: 1160, 660
+  orig: 1160, 660
+  offset: 0, 0
+  index: -1
+boom1
+  rotate: false
+  xy: 1495, 1441
+  size: 106, 98
+  orig: 106, 98
+  offset: 0, 0
+  index: -1
+boom2
+  rotate: false
+  xy: 1164, 1057
+  size: 137, 107
+  orig: 137, 107
+  offset: 0, 0
+  index: -1
+boom3
+  rotate: false
+  xy: 292, 386
+  size: 167, 151
+  orig: 167, 151
+  offset: 0, 0
+  index: -1
+boom4
+  rotate: false
+  xy: 1164, 1166
+  size: 271, 190
+  orig: 271, 190
+  offset: 0, 0
+  index: -1
+boom5
+  rotate: false
+  xy: 2, 323
+  size: 288, 214
+  orig: 288, 214
+  offset: 0, 0
+  index: -1
+boom6
+  rotate: false
+  xy: 1164, 1358
+  size: 329, 237
+  orig: 329, 237
+  offset: 0, 0
+  index: -1
+daodan
+  rotate: true
+  xy: 1437, 1275
+  size: 81, 33
+  orig: 81, 33
+  offset: 0, 0
+  index: -1
+end
+  rotate: true
+  xy: 1495, 1541
+  size: 54, 401
+  orig: 54, 401
+  offset: 0, 0
+  index: -1
+feiji
+  rotate: true
+  xy: 2, 2
+  size: 319, 101
+  orig: 319, 101
+  offset: 0, 0
+  index: -1

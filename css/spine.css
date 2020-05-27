@@ -1,0 +1,638 @@
+* {margin: 0; padding: 0; list-style: none;font-family: "微软雅黑";}
+#Animation{
+	position: relative;
+	z-index: -1;
+	/*height: 64vw;*/
+	/*background: #000;*/
+}
+#gameCanvas{
+	float: left;
+}
+#loading{
+	position: absolute; width: 100% ;height: 100%;
+	background: rgba(0,0,0,0.1);
+	z-index: 2;
+	text-align: center;
+	line-height: 10em;
+}
+
+#headinfo{
+	z-index: 3;
+	position: absolute; 
+	width: 100% ;
+	background-size: 100%;
+	display: none;
+	background: rgba(0,0,0,.7);
+	height: 9.5vw;
+	
+}
+
+#ygsc #headinfo ul li {
+	width: 16.5%;
+	float: left;
+	margin-top: 2.5vw;
+}
+#ygsc  #headinfo ul .logoimg{width: 21%;}
+#ygsc  #headinfo ul .qiuhaos{width: 62%;}
+.gameinfo{width: 16.5%;float: right;}
+#headinfo ul li img{
+	max-width: 100%;
+	float: left;
+}
+#headinfo ul li.logoimg div{
+	float: left;
+}
+#ygsc #headinfo ul li.logoimg .alllogo{
+	width: 25%;
+}
+#ygsc #headinfo ul li.logoimg .gamelogo{
+	width: 75%;
+}
+#headinfo ul li dl{
+	overflow: auto;
+	margin-top: -0.75vw;
+}
+#ygsc #headinfo ul li dl dd{
+	width: 10%;
+	float: left;
+}
+.qiuhaos dl{display: none;}
+#ygsc .qiuhaos span{
+	background: url(../img/scqiuhao_max.png) no-repeat;
+	background-size: 200% auto;
+	display: block;
+	margin: 0 auto;
+	width: 6.1vw;
+	height: 6.1vw;
+}
+#ygsc .n2,
+#ygsc .qiuhaos span.n2{
+	background-position-x:100%!important;
+}
+#ygsc .n3,
+#ygsc .qiuhaos span.n3{
+	background-position-y:25%!important;
+}
+#ygsc .n4,
+#ygsc .qiuhaos span.n4{
+	background-position-x:100%!important;
+	background-position-y:25%!important;
+}
+#ygsc .n5,
+#ygsc .qiuhaos span.n5{
+	background-position-y:50%!important;
+}
+#ygsc .n6,
+#ygsc .qiuhaos span.n6{
+	background-position-x:100%!important;
+	background-position-y:50%!important;
+}
+#ygsc .n7,
+#ygsc .qiuhaos span.n7{
+	background-position-y:75%!important;
+}
+#ygsc .n8,
+#ygsc .qiuhaos span.n8{
+	background-position-x:100%!important;
+	background-position-y:75%!important;
+}
+#ygsc .n9,
+#ygsc .qiuhaos span.n9{
+	background-position-y:100%!important;
+}
+#ygsc .n10,
+#ygsc .qiuhaos span.n10{
+	background-position-x:100%!important;
+	background-position-y:100%!important;
+}
+.gameinfo{
+	text-align: left;
+	float: right!important;
+}
+.gameinfo .tip2,
+.gameinfo .tip3{
+	/*display: none;*/
+}
+.gameinfo .tip1{
+	margin-top: -1vw;
+	height: 2vw;
+	position: relative;
+	text-align: center;
+}
+.gameinfo .tip1 #drawIssue{
+	
+	display: block;
+	position: absolute;
+	top: 0vw;
+	left: 0vw;
+	color: #ffdd00;
+	/*background: #fff;*/
+	width: 100%;
+	height: 100%;
+	line-height: 1em;
+	vertical-align: middle;
+	text-align: center;
+	font-size: 2.65vw;
+	/*transform-origin:0 0;*/
+	transform: scale(0.7);
+	
+}
+.gameinfo .tip3,
+.gameinfo .tip2{
+	margin-top: 2.5vw;
+	position: relative;
+	
+}
+.gameinfo .tip2 #daojitime{
+	display: block;
+	position: absolute;
+	top: -0.65vw;
+	left: 7.5vw;
+	color: #ffdd00;
+	width: 6.5vw;
+	height: 2.5vw;
+	line-height: 1em;
+	text-align: center;
+	font-size: 4vw;
+}
+#ygsc .winNum{
+	position: absolute;
+	width: 82%;
+	left: 9%;
+	top: 20.25vw;
+	font-size:4.25vw ;
+}
+#ygsc .winNum ul li{
+	width: 33%;
+	float: left;
+	text-align: center;
+	color: #fff;line-height: 1em;
+}
+#ygsc .winNum ul li span.no1{
+	position: relative;
+	top: -2.5vw;
+	left: 0.25vw;
+}
+
+#ygsc .winNum ul li span.no3{
+	position: relative;
+	left: 0.25vw;
+}
+#ygsc .winCar{
+	position: absolute;
+	width: 100%;
+	left: 0%;
+	top: 28vw;
+	animation:myscale 4s infinite ease-in-out;
+	-webkit-animation:myscale 4s infinite ease-in-out; /*Safari and Chrome*/
+	display: none;
+}
+@keyframes myscale
+{
+ 	0%{
+	    transform: scale(0.8);
+	} 12.5%{
+	    transform: scale(1);
+	} 87.5%{
+	    transform: scale(1);
+	} 100%{
+	    transform: scale(0.8);
+	}
+
+}
+
+@-webkit-keyframes myscale /*Safari and Chrome*/
+{
+from transform:scale(0.6,0.6);}
+to {transform:scale(1,1);}
+}
+#ygsc .winCar ul li{
+	width: 33%;
+	float: left;
+	text-align: center;
+	color: #fff;line-height: 1em;
+}
+#ygsc .winCar ul li img{
+	max-width: 100%;
+}
+#ygsc .winCar ul li{
+	position: absolute;
+}
+#ygsc .winCar ul li.car_no2{
+	width: 40%;
+	left: -2%;
+	top: 0;
+	z-index: 5;
+}
+#ygsc .winCar ul li.car_no1{
+	width: 50%;
+	left: 25%;
+	top: -3vw;
+	z-index: 6;
+}
+#ygsc .winCar ul li.car_no3{
+	width: 40%;
+	right: -2%;
+	top: 0;
+	z-index: 5;
+}
+#ygsc .winCar ul li.car_no3 img{
+	transform:rotateY(180deg);
+}
+
+
+/*蕃摊*/
+#ygsc .Animation_ft #headinfo ul li.logoimg{
+	width: 15%;
+}
+#ygsc .Animation_ft #headinfo ul li.logoimg .alllogo{
+	width: 45%;
+	margin-top: -1.25vw;
+}
+#ygsc #headinfo ul li.logoimg .gamelogo_ft{
+	position: absolute;
+	left: 0;
+	top: 0.2vw;
+	width: 17vw;
+}
+#ygsc .Animation_ft #headinfo ul .qiuhaos{
+	width: 61%;	
+}
+#ygsc .Animation_ft #headinfo ul  .fantan{
+	width: 7%;	
+}
+#ygsc .Animation_ft #headinfo ul  .fantan div{
+	
+	background: url(../img/show1.png) no-repeat center;
+	background-size:auto 100%;
+	width: 90%;
+	text-align: center;
+	height: 6vw;
+	line-height: 6vw;
+	border-left: 1px solid #6f6f6f;
+	color: #fff;
+	margin-top: -0.5vw;
+	float: right;
+}
+/*#ygsc .Animation_ft #headinfo .qiuhaos span{
+	width: 6.1vw;
+	height: 6.1vw;
+}*/
+
+.winFix{
+	position: absolute;
+	width: 100%;
+	left: 0%;
+	top: 31vw;
+	display: none;
+}
+
+.winFix li{
+	position: absolute;
+	background: url(../img/winFix.png) no-repeat;
+	background-size: 200% auto;
+	width:  40%;
+	left: -2%;
+	height:  9.5vw;
+	z-index: 5;
+	text-align: center;
+	color: #fff;line-height: 1em;
+	animation:myFixScale 2s infinite ease-in-out;
+	-webkit-animation:myFixScale 2s infinite ease-in-out; /*Safari and Chrome*/
+}
+.winFix li#fix_no1{
+	z-index: 6;
+	width: 60%;
+	height: 14.35vw;
+	left: 20%;
+	top: 12vw;
+}
+.winFix li#fix_no3{
+	right: -2%;
+	left: auto;
+	transform: scale(0.9);
+}
+@keyframes myFixScale
+{
+ 	0%{
+	    transform: scale(1);
+	} 50%{
+	    transform: scale(0.9);
+	} 100%{
+	    transform: scale(1);
+	}
+
+}
+
+#ssc #headinfo ul li {
+	width: 16.5%;
+	float: left;
+	margin-top: 2vw;
+}
+#ssc #headinfo ul li.logoimg{
+	width: 35%;
+	margin-top: 1vw;
+}
+#ssc #headinfo ul li.logoimg .alllogo{
+	width: 18%;
+	position: relative;
+	top: 0.65vw;
+}
+#ssc #headinfo ul li.logoimg .gamelogo {
+	width: 82%;
+}
+#ssc #Animation .qiuhaos{
+	width: 48%;
+	margin-top: 1.75vw;
+}
+#ssc #Animation.Animation_ft .qiuhaos{
+	width: 33%;
+}
+#ssc #Animation.Animation_ft .fantan {
+    width: 15%;
+}
+
+#ssc .qiuhaos dl{
+	width: 90%;
+	margin: 0 auto;
+}
+#ssc .Animation_ft .qiuhaos dl{width: 100%;}
+#ssc .qiuhaos span{
+	background: url(../img/shuzi_max.png) no-repeat;
+	background-size: 200% auto;
+	display: block;
+	margin: 0 auto;
+	width: 6.1vw;
+	height: 6.1vw;
+}
+#ssc #Animation.Animation_ft .qiuhaos span{
+	background: url(../img/sscqiuhao_max.png) no-repeat;
+	background-size: 200% auto;
+}
+#ssc #headinfo ul li dl dd{
+	width: 20%;
+	float: left;
+}
+
+#ssc .n1{
+	background-position-x:100%!important;
+	background-position-y:0%!important;
+}
+
+#ssc .n2{
+	background-position-x:0%!important;
+	background-position-y:20%!important;
+}
+#ssc .n3{
+	background-position-x:100%!important;
+	background-position-y:20%!important;
+}
+#ssc .n4{
+	background-position-x:0%!important;
+	background-position-y:40%!important;
+}
+#ssc .n5{
+	background-position-x:100%!important;
+	background-position-y:40%!important;
+}
+#ssc .n6{
+	background-position-x:0%!important;
+	background-position-y:60%!important;
+}
+#ssc .n7{
+	background-position-x:100%!important;
+	background-position-y:60%!important;
+}
+#ssc .n8{
+	background-position-x:0%!important;
+	background-position-y:80%!important;
+}
+#ssc .n9{
+	background-position-x:100%!important;
+	background-position-y:80%!important;
+}
+#ssc .n10{
+	background-position-x:0%!important;
+	background-position-y:100%!important;
+}
+#ssc .n11{
+	background-position-x:100%!important;
+	background-position-y:100%!important;
+}
+
+#ssc .Animation_ft #headinfo .n1{
+	background-position-x:100%!important;
+	background-position-y:0%!important;
+}
+
+#ssc .Animation_ft #headinfo .n2{
+	background-position-y:25%!important;
+}
+#ssc .Animation_ft #headinfo .n3{
+	background-position-x:100%!important;
+	background-position-y:25%!important;
+}
+#ssc .Animation_ft #headinfo .n4{
+	background-position-y:50%!important;
+}
+#ssc .Animation_ft #headinfo .n5{
+	background-position-x:100%!important;
+	background-position-y:50%!important;
+}
+#ssc .Animation_ft #headinfo .n6{
+	background-position-y:75%!important;
+}
+#ssc .Animation_ft #headinfo .n7{
+	background-position-x:100%!important;
+	background-position-y:75%!important;
+}
+#ssc .Animation_ft #headinfo .n8{
+	background-position-y:100%!important;
+}
+#ssc .Animation_ft #headinfo .n9{
+	background-position-x:100%!important;
+	background-position-y:100%!important;
+}
+#ssc .Animation_ft .fantan div{
+	box-sizing: border-box;
+	background: url(../img/show1.png) no-repeat center center;
+	background-size:auto 100%;
+	width: 50%;
+	height: 6.65vw;
+	line-height: 6.65vw;
+	border-left: 1px solid #6f6f6f;
+	color: #fff;
+	margin-top: -0.5vw;
+	text-indent: 0.5vw;
+	float: right;
+	text-align: center;
+}
+
+#ssc .Animation_ft #headinfo .qiuhaos span{
+	width: 5.85vw;
+	height: 5.85vw;
+}
+#ssc .winNum{
+	position: absolute;
+	top: 33.5vw;
+	width: 100%;
+	display: none;
+}
+#ssc .winNum ul{
+	width: 63%;
+	margin: 0 auto;
+}
+#ssc .winNum li {
+	width: 20%;
+	float: left;
+}
+#ssc .winNum li {
+	width: 20%;
+	float: left;
+}
+#ssc .winNum li span{
+	display: block;
+	width: 8vw;
+	margin: 0 auto;
+	height: 8vw;
+	background: url(../img/shuzi_max.png) no-repeat;
+	background-size: 200% auto;
+}
+/*#ssc.jsks .winNum {display: block;}*/
+#ssc.jsks .winNum ul li{
+	width: 33.33%;
+}
+#ssc.jsks #headinfo ul li dl dd{
+	width: 30%;
+} 
+
+#ssc.jsks .winNum ul{
+	width: 50%;
+	position: relative;
+	top: -5vw;
+}
+#ssc.jsks .winNum li span{
+	background: url(../img/jsksqiuhao_max.png) no-repeat;
+	background-size: 200% auto;
+	
+}
+#ssc.jsks .winNum li .n2{
+	background-position-x:100%!important;
+	background-position-y:0%!important;
+}
+#ssc.jsks .winNum li .n3{
+	background-position-y:50%!important;
+}
+#ssc.jsks .winNum li .n4{
+	background-position-x:100%!important;
+	background-position-y:50%!important;
+}
+#ssc.jsks .winNum li .n5{
+	background-position-y:100%!important;
+}
+#ssc.jsks .winNum li .n6{
+	background-position-x:100%!important;
+	background-position-y:100%!important;
+}
+#ssc.pcdd #headinfo ul li dl{
+	width: 80%;
+	margin: 0 auto;
+}
+
+#ssc.pcdd #headinfo ul li dl dd{
+	width: 14%;
+	color: #fff;
+}
+#ssc.pcdd .winNum{
+	position: absolute;
+	top: 10vw;
+	width: 100%;
+	display: none;
+	transform: scale(0.6);
+}
+
+#ssc.pcdd .winNum ul{
+	position: relative;
+	left: 7vw;
+	width: 65%;
+}
+#ssc.pcdd .winNum ul li{
+	width: 25%;
+	color: #fff;
+	font-size: 4vw;
+	line-height:4vw;
+	position: relative;
+}
+#ssc.pcdd .winNum ul .qiu0{
+	left: -1vw;
+}
+#ssc.pcdd .winNum ul .qiu1{
+	left: -1.5vw;
+}
+#ssc.twbg #headinfo{
+	background: none;
+	color: #ffdd00;
+	line-height: 3vw;
+}
+#ssc.twbg #headinfo #drawIssue{
+	font-size: 3vw;
+	float: left;
+	margin:0.85vw 0 0 5vw;
+}
+#ssc.twbg #headinfo #daojitime{
+	position: absolute;
+	right: 0;
+	margin:0.85vw 5.5vw 0 0 ;
+	top: 0;
+	display: block;
+	width: 10vw;
+	text-align: center;
+}
+#ssc.twbg .winNum{                                                                                                             
+	top: 9vw;
+}
+#ssc.twbg .winNum ul {
+    width: 70%;
+    margin-left:16%;
+}
+#ssc.twbg .winNum ul li{
+	width: 4.75%;
+}
+#ssc.twbg .winNum ul li img{
+	max-width: 100%;
+}
+
+
+#ssc.lhc #headinfo ul li.logoimg{
+	width: 30%;
+	top: -0.15vw;
+	position: relative;
+}
+#ssc.lhc #headinfo ul li.logoimg .alllogo{
+	width: 22%;
+}
+#ssc.lhc #headinfo ul li.logoimg .gamelogo{
+	position: absolute;
+	right: -1vw;
+	width: 100%;
+}
+#ssc.lhc #Animation .qiuhaos{
+	position: absolute;
+	top: -1vw;
+	left: 25%;
+	width: 58%;
+}
+
+#ssc.lhc #Animation .qiuhaos dl dd{
+	width: 12.5%;
+	text-align: center;
+	color: #fff;
+}
+#ssc.lhc .qiuhaos span{
+	background: none;
+	width: 5vw;
+    height: 5vw;
+}
+#ssc.lhc .qiuhaos p{
+	font-size: 3vw;
+}

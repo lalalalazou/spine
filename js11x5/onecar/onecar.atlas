@@ -1,0 +1,41 @@
+
+onecar.png
+size: 256,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+car
+  rotate: false
+  xy: 2, 83
+  size: 159, 89
+  orig: 159, 89
+  offset: 0, 0
+  index: -1
+cen1
+  rotate: false
+  xy: 2, 56
+  size: 101, 25
+  orig: 101, 25
+  offset: 0, 0
+  index: -1
+cen2
+  rotate: false
+  xy: 2, 2
+  size: 94, 25
+  orig: 94, 25
+  offset: 0, 0
+  index: -1
+cen3
+  rotate: false
+  xy: 2, 29
+  size: 94, 25
+  orig: 94, 25
+  offset: 0, 0
+  index: -1
+lun
+  rotate: false
+  xy: 163, 134
+  size: 38, 38
+  orig: 38, 38
+  offset: 0, 0
+  index: -1

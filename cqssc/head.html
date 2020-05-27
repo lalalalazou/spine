@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="format-detection" content="telephone=no">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+		<title></title>
+		<script src="js/jquery-3.1.0.min.js"></script>
+	</head>
+	<style>
+		* { margin: 0; padding: 0; list-style: none;}
+		#Animation{
+			position: absolute; width: 100% ;height: 100%;
+		}
+		#logo{
+			position: absolute; width: 100% ;height: 3.5em;z-index: 1;
+			background: #0f1521;
+			color: #fff;
+		}
+		#logo img {
+			position: absolute;
+			left: 0;
+			height: 1.5em;
+			/*top: 0.25em;*/
+		}
+		
+		#logo .info{
+			position: absolute;
+			right: 0.25em;
+			top: 0.25em;
+			width: 70%;
+			text-align: right;
+			font-size: 0.85em;
+			font-weight: bold;
+		}
+		.qiuhao{
+			text-align: left;
+			margin: 1.5em 0 0 0em;
+		}
+		.qiuhao dl dd{
+			background: url(img/num.png);
+			background-size:auto 100% ;
+			display: inline-block;
+			width: 1.8em;
+			height: 1.8em;
+			margin: 0.1em;
+		}
+		.qiuhao dl dd.n2{
+			background-position-x: -1.8em;
+		}
+		.qiuhao dl dd.n3{
+			background-position-x: -3.6em;
+		}
+		.qiuhao dl dd.n4{
+			background-position-x: -5.4em;
+		}
+		.qiuhao dl dd.n5{
+			background-position-x: -7.2em;
+		}
+		.qiuhao dl dd.n6{
+			background-position-x: -9em;
+		}
+		.qiuhao dl dd.n7{
+			background-position-x: -10.8em;
+		}
+		.qiuhao dl dd.n8{
+			background-position-x: -12.6em;
+		}
+		.qiuhao dl dd.n9{
+			background-position-x: -14.4em;
+		}
+		.qiuhao dl dd.n10{
+			background-position-x: -16.2em;
+		}
+	</style>
+<body>
+	<div id="Animation">
+		<div id="logo">
+			<img src="img/logo.png" height="24px" />
+			<div class="isshow qiuhao"></div>
+			<div class="isshow info">
+				<p>
+					下期 <span id="drawIssue"></span>
+					时间 <span id="drawTime"></span>
+				</p>
+			</div>
+		</div>
+	</div>
+<script>
+	
+	var saiche = {
+		get_game_timmer:null,
+		drawTime:null,
+		isRefreshGetData:true,
+		init:function(){
+			var _this = this;
+			
+			
+			_this.refresh();
+		},
+		refresh:function(){
+			var _this = this;
+			if(this.get_game_timmer)
+			{
+				clearInterval(this.get_game_timmer)
+				this.get_game_timmer = null;
+			}
+			if(this.player_timmers)
+			{
+				clearInterval(this.player_timmers)
+				this.player_timmers = null;
+			}
+			
+			this.getGame();
+			this.get_game_timmer = setInterval(function() {
+				_this.getGame();
+			}, 15000); 
+		},
+		refreshPlay:function()
+		{
+			var me = this;
+			clearInterval(me.get_game_timmer)
+			me.get_game_timmer = null;
+			clearInterval(me.player_timmers)
+			me.player_timmers = null;
+			me.getGame();
+			me.get_game_timmer = setInterval(function() {
+				me.getGame();
+			}, 15000); 
+		},
+		getGame: function() {
+			var _this = this;
+			$.ajax({
+		         url: "http://f1.ss99.co/index.php?r=sys/server-time",
+		         type: "GET",
+		         dataType: "jsonp",
+		         jsonpCallback: "showData",  //指定回调函数名称
+		         success: function (res) {
+		            _this.getKJinfo(res)
+		         }
+		  });
+		},
+		getKJinfo: function(res) {
+			var _this = this;
+			$.ajax({
+		         url: "http://f1.ss99.co/kaijiang/ygsc.json?v=1558406231542",
+		         type: "GET",
+		         dataType: "json",
+		         success: function (data) {
+		         	if(_this.drawTime && data.drawTime != _this.drawTime)
+		         	{
+		         		//说明已经开奖
+		         		_this.drawTime = data.drawTime
+		         		setTimeout(function(){
+							$(".isshow").show()
+						},10100)
+		         		
+		         	}else{
+						
+		         		var drawTime = data.drawTime
+		         		_this.drawTime = data.drawTime
+						drawTime = parseInt(new Date(drawTime.replace(/-/g, '/')).getTime()/1000);    // 当前时间戳
+						
+						var djstime = drawTime - res.server_time
+						_this.countDown(djstime);//开盘状态需要倒计时
+						
+		         	}
+		         	_this.setData(data);
+		         }
+			});
+		},
+		countDown:function (djstime) {
+			var _this = this
+			_this.setMyTime(djstime);
+			clearInterval(_this.player_timmers);
+			_this.player_timmers = null;
+			_this.player_timmers = setInterval(function () {
+				djstime--;
+				_this.setMyTime(djstime);
+			}, 1000);
+		},
+		setMyTime:function (time) {
+			var _this = this;
+			
+			if(time<0)
+			{
+				$(".isshow").hide()
+				
+				if(_this.isRefreshGetData)
+				{
+					_this.isRefreshGetData = false
+					var t=null
+					t = setTimeout(function(){
+						_this.refreshPlay()
+						clearTimeout(t)
+						_this.isRefreshGetData = true
+					},1000)
+					
+				}
+				return false;
+			}
+			
+			
+			
+			
+		},
+		setData : function(data){
+			$("#drawIssue").html(data.drawIssue)
+			var drawTime = data.drawTime.substr(10,6);
+			$("#drawTime").html(drawTime)
+			var htm = "<dl class='ygscNum'>"
+			for(i in data.code)
+			{
+				htm+= "<dd class='n"+ data.code[i] +"'></dd>"
+				//console.log(data.code[i])
+			}
+			htm += "</dl>"
+			$(".qiuhao").html(htm)
+		},
+	}
+	$(document).ready(function(){
+	 	saiche.init()
+	});
+
+	
+	
+	
+	
+</script>
+</body>
+</html>

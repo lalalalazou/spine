@@ -1,0 +1,118 @@
+
+onecar.png
+size: 1024,128
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+10_c
+  rotate: false
+  xy: 2, 16
+  size: 128, 39
+  orig: 128, 39
+  offset: 0, 0
+  index: -1
+1_c
+  rotate: false
+  xy: 666, 83
+  size: 128, 37
+  orig: 128, 37
+  offset: 0, 0
+  index: -1
+2_c
+  rotate: false
+  xy: 796, 83
+  size: 128, 37
+  orig: 128, 37
+  offset: 0, 0
+  index: -1
+3_c
+  rotate: false
+  xy: 406, 42
+  size: 128, 37
+  orig: 128, 37
+  offset: 0, 0
+  index: -1
+4_c
+  rotate: false
+  xy: 536, 42
+  size: 128, 37
+  orig: 128, 37
+  offset: 0, 0
+  index: -1
+5_c
+  rotate: false
+  xy: 406, 81
+  size: 128, 39
+  orig: 128, 39
+  offset: 0, 0
+  index: -1
+6_c
+  rotate: false
+  xy: 132, 16
+  size: 128, 39
+  orig: 128, 39
+  offset: 0, 0
+  index: -1
+7_c
+  rotate: false
+  xy: 666, 44
+  size: 128, 37
+  orig: 128, 37
+  offset: 0, 0
+  index: -1
+8_c
+  rotate: false
+  xy: 536, 81
+  size: 128, 39
+  orig: 128, 39
+  offset: 0, 0
+  index: -1
+9_c
+  rotate: false
+  xy: 262, 16
+  size: 128, 39
+  orig: 128, 39
+  offset: 0, 0
+  index: -1
+ST_1
+  rotate: false
+  xy: 796, 67
+  size: 57, 14
+  orig: 57, 14
+  offset: 0, 0
+  index: -1
+ST_2
+  rotate: false
+  xy: 926, 108
+  size: 63, 12
+  orig: 63, 12
+  offset: 0, 0
+  index: -1
+ST_Rush1
+  rotate: false
+  xy: 2, 57
+  size: 200, 63
+  orig: 200, 63
+  offset: 0, 0
+  index: -1
+ST_Rush2
+  rotate: false
+  xy: 204, 57
+  size: 200, 63
+  orig: 200, 63
+  offset: 0, 0
+  index: -1
+lun
+  rotate: false
+  xy: 926, 84
+  size: 23, 22
+  orig: 23, 22
+  offset: 0, 0
+  index: -1
+shadow_car
+  rotate: false
+  xy: 2, 2
+  size: 131, 12
+  orig: 131, 12
+  offset: 0, 0
+  index: -1

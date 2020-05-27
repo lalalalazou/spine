@@ -1,0 +1,181 @@
+
+fix.png
+size: 2048,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+10_s
+  rotate: false
+  xy: 386, 101
+  size: 178, 45
+  orig: 178, 45
+  offset: 0, 0
+  index: -1
+1_s
+  rotate: true
+  xy: 1163, 347
+  size: 178, 45
+  orig: 178, 45
+  offset: 0, 0
+  index: -1
+1st
+  rotate: false
+  xy: 1219, 929
+  size: 174, 91
+  orig: 174, 91
+  offset: 0, 0
+  index: -1
+2_s
+  rotate: false
+  xy: 1, 19
+  size: 178, 45
+  orig: 178, 45
+  offset: 0, 0
+  index: -1
+2nd
+  rotate: true
+  xy: 1266, 709
+  size: 133, 56
+  orig: 133, 56
+  offset: 0, 0
+  index: -1
+3_s
+  rotate: false
+  xy: 206, 101
+  size: 178, 45
+  orig: 178, 45
+  offset: 0, 0
+  index: -1
+3rd
+  rotate: true
+  xy: 1219, 545
+  size: 117, 56
+  orig: 117, 56
+  offset: 0, 0
+  index: -1
+4_s
+  rotate: false
+  xy: 1395, 929
+  size: 178, 44
+  orig: 178, 44
+  offset: 0, 0
+  index: -1
+5_s
+  rotate: false
+  xy: 1393, 883
+  size: 178, 44
+  orig: 178, 44
+  offset: 0, 0
+  index: -1
+6_s
+  rotate: false
+  xy: 1395, 975
+  size: 178, 45
+  orig: 178, 45
+  offset: 0, 0
+  index: -1
+7_s
+  rotate: true
+  xy: 1219, 664
+  size: 178, 45
+  orig: 178, 45
+  offset: 0, 0
+  index: -1
+8_s
+  rotate: true
+  xy: 1163, 167
+  size: 178, 45
+  orig: 178, 45
+  offset: 0, 0
+  index: -1
+9_s
+  rotate: false
+  xy: 1575, 976
+  size: 178, 44
+  orig: 178, 44
+  offset: 0, 0
+  index: -1
+S T A R T
+  rotate: false
+  xy: 1163, 527
+  size: 54, 493
+  orig: 54, 493
+  offset: 0, 0
+  index: -1
+bo
+  rotate: false
+  xy: 206, 71
+  size: 130, 28
+  orig: 130, 28
+  offset: 0, 0
+  index: -1
+build
+  rotate: false
+  xy: 1, 148
+  size: 1160, 171
+  orig: 1160, 204
+  offset: 0, 0
+  index: -1
+effect_1
+  rotate: false
+  xy: 1393, 863
+  size: 131, 18
+  orig: 131, 18
+  offset: 0, 0
+  index: -1
+effect_2
+  rotate: false
+  xy: 1, 1
+  size: 164, 16
+  orig: 164, 16
+  offset: 0, 0
+  index: -1
+effect_3
+  rotate: false
+  xy: 566, 113
+  size: 117, 33
+  orig: 127, 34
+  offset: 10, 0
+  index: -1
+effect_rush
+  rotate: true
+  xy: 1324, 721
+  size: 121, 65
+  orig: 122, 65
+  offset: 1, 0
+  index: -1
+sky
+  rotate: false
+  xy: 1, 321
+  size: 1160, 204
+  orig: 1160, 204
+  offset: 0, 0
+  index: -1
+water
+  rotate: false
+  xy: 1, 527
+  size: 1160, 493
+  orig: 1160, 493
+  offset: 0, 0
+  index: -1
+y1
+  rotate: false
+  xy: 1, 66
+  size: 203, 80
+  orig: 203, 80
+  offset: 0, 0
+  index: -1
+y2
+  rotate: false
+  xy: 1575, 941
+  size: 86, 33
+  orig: 86, 33
+  offset: 0, 0
+  index: -1
+y3
+  rotate: false
+  xy: 1219, 844
+  size: 172, 83
+  orig: 172, 83
+  offset: 0, 0
+  index: -1

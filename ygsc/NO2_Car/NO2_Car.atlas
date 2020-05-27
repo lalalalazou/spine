@@ -1,0 +1,76 @@
+
+NO2_Car.png
+size: 2048,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+10_s
+  rotate: true
+  xy: 2, 477
+  size: 473, 354
+  orig: 473, 354
+  offset: 0, 0
+  index: -1
+1_s
+  rotate: true
+  xy: 2, 2
+  size: 473, 354
+  orig: 473, 354
+  offset: 0, 0
+  index: -1
+2_s
+  rotate: true
+  xy: 358, 477
+  size: 473, 354
+  orig: 473, 354
+  offset: 0, 0
+  index: -1
+3_s
+  rotate: true
+  xy: 358, 2
+  size: 473, 354
+  orig: 473, 354
+  offset: 0, 0
+  index: -1
+4_s
+  rotate: true
+  xy: 714, 477
+  size: 473, 354
+  orig: 473, 354
+  offset: 0, 0
+  index: -1
+5_s
+  rotate: true
+  xy: 714, 2
+  size: 473, 354
+  orig: 473, 354
+  offset: 0, 0
+  index: -1
+6_s
+  rotate: false
+  xy: 1070, 596
+  size: 473, 354
+  orig: 473, 354
+  offset: 0, 0
+  index: -1
+7_s
+  rotate: false
+  xy: 1545, 596
+  size: 473, 354
+  orig: 473, 354
+  offset: 0, 0
+  index: -1
+8_s
+  rotate: true
+  xy: 1070, 121
+  size: 473, 354
+  orig: 473, 354
+  offset: 0, 0
+  index: -1
+9_s
+  rotate: false
+  xy: 1426, 240
+  size: 473, 354
+  orig: 473, 354
+  offset: 0, 0
+  index: -1

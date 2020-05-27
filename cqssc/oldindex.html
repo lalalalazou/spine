@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="format-detection" content="telephone=no">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+		<title></title>
+		<script src="js/jquery-3.1.0.min.js"></script>
+		<script src="js/three.min.js"></script>
+		<script src="js/spine-threejs.js"></script>
+	</head>
+	<style>
+		* { margin: 0; padding: 0; list-style: none;}
+		#Animation{
+			position: absolute; width: 100% ;height: 100%;
+		}
+		#canvas{
+			position: absolute; width: 100% ;height: 100%;
+			z-index: 0;
+		}
+		#daojishi{
+			position: absolute; width: 100% ;height: 100%;
+			background: rgba(0,0,0,0.1);
+			color: #fff;
+			font-size: 3.5em;
+			font-weight: bold;
+			z-index: 2;
+			text-align: center;
+			line-height: 3.5em;
+		}
+	
+	</style>
+<body>
+	<div id="Animation">
+		<div id="canvas"></div>
+		<div id="daojishi" class="timeDJS"></div>
+	</div>
+<script>
+	function sence(vdata){
+		var width = window.innerWidth;
+		//height = window.innerHeight;
+		var height =width/1.5;
+		this.camera = new THREE.PerspectiveCamera(75, width / height, 1, 3000);
+		this.camera.position.x =232;
+		this.camera.position.y = -150;
+		this.camera.position.z = 212;
+		this.scene = new THREE.Scene();
+		this.renderer = new THREE.WebGLRenderer();
+		this.renderer.setSize(width, height);
+		document.getElementById("canvas").appendChild(this.renderer.domElement);
+		this.canvas = this.renderer.domElement;
+		this.assetManager = {}
+		this.myskeletonMesh = {}
+		this.group = {}
+		this.plays = {}
+		this.bg = null;
+		this.loadIsComplete = false;
+		this.opaoche = null;
+		this.winopaoche = null;
+		this.win = [3,7,5,4,1,2,8,10,9];//赢得是3号跑车
+		this.lastFrameTime = Date.now() / 1000;
+		
+		this.times = 0
+		this.server_time = null // 获取的服务器时间
+		this.kaijiangInfo = null // 开奖信息
+		this.timmer = null
+		this.oldvdata = vdata
+		var newvdata=JSON.parse(JSON.stringify(vdata))
+		this.vdata = newvdata
+		
+		this.initplay()
+	}
+	sence.prototype.getloadIsComplete = function(){
+		return this.loadIsComplete;;
+	}
+	
+	sence.prototype.initplay = function(){
+		var _this = this
+		for(i in _this.vdata)
+		{
+			var filename = _this.vdata[i].filename
+			_this.assetManager[i] = new spine.threejs.AssetManager(filename+"/");
+			_this.assetManager[i] = new spine.threejs.AssetManager(filename+"/");
+			_this.assetManager[i].loadText(filename+".json");
+			_this.assetManager[i].loadTextureAtlas(filename+".atlas");
+		}
+		requestAnimationFrame(_this.load.bind(_this));
+		
+	}
+
+	sence.prototype.load = function(){
+		var _this = this
+		
+		var isComplete = true
+		
+		for(i in _this.vdata)
+		{
+			if (!(_this.assetManager[i].isLoadingComplete())) {
+				isComplete = false
+			}
+		}
+		if(isComplete)
+		{
+			//_this.times = 0
+			_this.loadIsComplete = true
+			_this.showdef()
+		} else requestAnimationFrame(this.load.bind(this));
+	}
+	sence.prototype.showdef = function(){
+		var _this = this
+		for( index in _this.vdata)
+		{
+			_this.group[index] = new THREE.Object3D();
+			_this.scene.add(_this.group[index]);
+			var filename = _this.vdata[index].filename
+			
+			//获取动画数据
+			atlas = _this.assetManager[index].get(filename+".atlas");
+			atlasLoader = new spine.AtlasAttachmentLoader(atlas);
+			var skeletonJson = new spine.SkeletonJson(atlasLoader);
+			skeletonJson.scale = 0.4;
+			var skeletonData = skeletonJson.readSkeletonData(_this.assetManager[index].get(filename+".json"));
+			//初始化动画
+			for( i in _this.vdata[index].child)
+			{
+				var thisdata = _this.vdata[index].child[i]
+				_this.myskeletonMesh[i] = new spine.threejs.SkeletonMesh(skeletonData);
+				_this.myskeletonMesh[i].position.z =thisdata.z
+				_this.myskeletonMesh[i].position.x =thisdata.x
+				_this.myskeletonMesh[i].position.y =thisdata.y
+				if(thisdata.ry)
+				{
+					_this.myskeletonMesh[i].rotation.y = thisdata.ry
+				}
+				if(thisdata.scale)
+				{
+					_this.myskeletonMesh[i].scale.set( thisdata.scale, thisdata.scale, thisdata.scale );
+				}
+				_this.myskeletonMesh[i].state.setAnimation(0, thisdata.animationame, true);
+				_this.group[index].add(_this.myskeletonMesh[i]);
+			}
+			requestAnimationFrame(_this.render.bind(_this));
+		}
+	}
+	
+	sence.prototype.render = function(){
+		//console.log(playname)
+		var _this = this
+		var now = Date.now() / 1000;
+		var delta = now - this.lastFrameTime;
+		this.lastFrameTime = now;
+
+		// resize canvas to use full page, adjust camera/renderer
+		_this.resize();
+		//console.log(_this.plays)
+		for( index in _this.vdata)
+		{
+			for( i in _this.vdata[index].child)
+			{
+				var thisdata = _this.vdata[index].child[i]
+				//console.log(thisdata.play,index)
+				if(thisdata.play)
+				{
+					_this.myskeletonMesh[i].update(delta);
+					if(thisdata.speedx)
+					{
+						if(!thisdata.fixed)
+						{
+							if(_this.myskeletonMesh[i].position.x + thisdata.speedx >= window.innerWidth-100)
+							{
+								_this.vdata[index].child[i].speedx = -(Math.abs(thisdata.speedx))
+							}else if(_this.myskeletonMesh[i].position.x + thisdata.speedx <= -10)
+							{
+								_this.vdata[index].child[i].speedx = (Math.abs(thisdata.speedx))
+							}
+						}
+						//console.log(_this.vdata[index].child[i].speedx)
+						_this.myskeletonMesh[i].position.x += _this.vdata[index].child[i].speedx
+					}
+//					if(i&&(/^car/).test(i))
+//					{
+//						var randomNum1 = Math.random()* 3;
+//						
+//					}
+				}
+			}
+		}
+		
+//		if(_this.times == 8)
+//		{
+//			_this.myskeletonMesh["car"+_this.win[0]].position.x += 5
+//			_this.play("car"+_this.win[0],"run_car" + _this.win[0] + "_rush")
+//		}
+		
+		// render the scene
+		this.renderer.render(this.scene, this.camera);
+
+		requestAnimationFrame(this.render.bind(this));
+	}
+	sence.prototype.resize = function(){
+		var w = window.innerWidth;
+		//var h = window.innerHeight;
+		var h = w/1.5;
+		if (this.canvas.width != w || this.canvas.height != h) {
+			this.canvas.width = w;
+			this.canvas.height = h;
+		}
+
+		this.camera.aspect = w / h;
+		this.camera.updateProjectionMatrix();
+
+		this.renderer.setSize(w, h);
+	}
+//	sence.prototype.play = function(playname,animationame,loop){
+//		this.myskeletonMesh[playname].state.setAnimation(0,animationame, loop);
+//		
+//	}
+	sence.prototype.setPlayTrue = function(playname){
+		var _this = this
+		for( index in _this.vdata)
+		{
+			for( i in _this.vdata[index].child)
+			{
+				if(i == playname)
+				{
+					_this.vdata[index].child[i].play = true
+				}
+			}
+		}
+	}
+	sence.prototype.addplay = function(playname,animationame,loop){
+		
+		this.myskeletonMesh[playname].state.setAnimation(0,animationame, loop);
+		this.setPlayTrue(playname)
+	}
+//	sence.prototype.delyplay = function(playname,animationame,delay,loop){
+//		this.myskeletonMesh[playname].state.addAnimation(0,animationame,loop,delay);
+//		//this.setPlayTrue(playname)
+//	}
+	sence.prototype.adddelyplay = function(playname,animationame,delay,z){
+		var _this = this
+		
+		this.myskeletonMesh[playname].state.addAnimation(0,animationame, true,delay);
+		
+		setTimeout(function(){
+			_this.setPlayTrue(playname)
+			
+		},delay*1000)
+		
+		
+		
+	}
+	sence.prototype.setz = function(playname,z){
+		this.myskeletonMesh[playname].position.z = z
+	}
+	sence.prototype.setchildData = function(d){
+		var _this = this
+		for( index in _this.vdata)
+		{
+			for( i in _this.vdata[index].child)
+			{
+				var thisdata = _this.vdata[index].child[i]
+				if(i == d.name)
+				{
+					for( di in d.data)
+					{
+						_this.vdata[index].child[i][di] = d.data[di]
+					}
+				}
+			}
+		}
+		
+	}
+	sence.prototype.resetSence = function(){
+		var _this = this
+		for( index in _this.vdata)
+		{
+			_this.resetGroup(index);
+		}
+	}
+	sence.prototype.resetGroup = function(groupname){
+		var _this = this
+		
+		var now = Date.now() / 1000;
+		var delta = now - this.lastFrameTime;
+		
+		for( index in _this.vdata)
+		{
+			if(index == groupname)
+			{
+				for( i in _this.vdata[index].child)
+				{
+					for( mi in _this.vdata[index].child[i])
+					{
+						_this.vdata[index].child[i][mi] = _this.oldvdata[index].child[i][mi]
+						
+					}
+					_this.myskeletonMesh[i].position.z =_this.oldvdata[index].child[i].z
+					_this.myskeletonMesh[i].position.x =_this.oldvdata[index].child[i].x
+					_this.myskeletonMesh[i].position.y =_this.oldvdata[index].child[i].y
+					_this.myskeletonMesh[i].state.setAnimation(0,_this.oldvdata[index].child[i].animationame, true);
+					_this.myskeletonMesh[i].update(delta)
+					_this.renderer.render(_this.scene, _this.camera);
+				}
+			}
+			
+		}
+	}
+	sence.prototype.delyAddPlayProup = function(playname,delay){
+		var _this = this
+		setTimeout(function(){
+			for( index in _this.vdata)
+			{
+				if(playname == index)
+				{
+					for( i in _this.vdata[index].child)
+					{
+						var thisdata = _this.vdata[index].child[i]
+						_this.myskeletonMesh[i].state.setAnimation(0,thisdata.animationame, true);
+						_this.vdata[index].child[i].play = true
+						
+					}
+				}
+			}
+			
+		},delay*1000)
+		
+		
+	}
+	var vdata = {
+		bg:{
+			filename: "mainpage",
+			child:{
+				mainpage:{
+					animationame: "standby",
+					x: 0,
+					y: 0,
+					z: 10,
+					child:null,
+					play:false
+				}
+			}
+		},
+		car:{
+			filename: "onecar",
+			child:{
+				car1:{
+					name:"",
+					animationame: "run_car1",
+					x: -15,
+					y: -100,
+					z: 20,
+					speedx:0,
+					play:false,
+					fixed:false
+				},
+				car2:{
+					animationame: "run_car2",
+					x: -15,
+					y: -117,
+					z: 20,
+					speedx:0,
+					play:false,
+					fixed:false
+				},
+				car3:{
+					animationame: "run_car3",
+					x: -15,
+					y: -134,
+					z: 20,
+					speedx:0,
+					play:false,
+					fixed:false
+				},
+				car4:{
+					animationame: "run_car4",
+					x: -15,
+					y: -151,
+					z: 20,
+					speedx:0,
+					play:false,
+					fixed:false
+				},
+				car5:{
+					animationame: "run_car5",
+					x: -15,
+					y: -168,
+					z: 20,
+					speedx:0,
+					play:false,
+					fixed:false
+				},
+				car6:{
+					animationame: "run_car6",
+					x: -15,
+					y: -185,
+					z: 20,
+					speedx:0,
+					play:false,
+					fixed:false
+				},
+				car7:{
+					animationame: "run_car7",
+					x: -15,
+					y: -202,
+					z: 20,
+					speedx:0,
+					play:false,
+					fixed:false
+				},
+				car8:{
+					animationame: "run_car8",
+					x: -15,
+					y: -219,
+					z: 20,
+					speedx:0,
+					play:false,
+					fixed:false
+				},
+				car9:{
+					animationame: "run_car9",
+					x: -15,
+					y: -236,
+					z: 20,
+					speedx:0,
+					play:false,
+					fixed:false
+				},
+				car10:{
+					animationame: "run_car10",
+					x: -15,
+					y: -253,
+					z: 20,
+					speedx:0,
+					play:false,
+					fixed:false
+				}
+			}
+		},
+		win1:{
+			filename:  "NO1_Car",
+			child:{
+				NO1_Car:{
+					animationame: "run_car1",
+					x: 20,
+					y: 0,
+					z: 5,
+					play:false
+				}
+			}
+		},
+		win2:{
+			filename:  "NO2_Car",
+			child:{
+				NO2_Car:{
+					animationame: "win_car1_s",
+					x: 0,
+					y: 0,
+					z: 5,
+					play:false
+				},
+				NO3_Car:{
+					animationame: "win_car1_s",
+					x: 480,
+					y: -25,
+					z: 5,
+					ry:Math.PI,
+					scale:0.9,
+					play:false
+				}
+			}
+		}
+	}
+	var saiche = {
+		vdata:vdata,
+		isPlaySence:false,//默认没有播放动画
+		get_game_timmer:null,
+		drawTime:null,
+		isRefreshGetData:true,
+		init:function(){
+			var _this = this;
+			for(i in this.vdata.car.child)
+			{
+				_this.vdata.car.child[i].speedx = Math.random()* 2;
+			}
+			_this.sence = new sence(this.vdata);
+			_this.refresh();
+		},
+		refresh:function(){
+			var _this = this;
+			if(this.get_game_timmer)
+			{
+				clearInterval(this.get_game_timmer)
+				this.get_game_timmer = null;
+			}
+			if(this.player_timmers)
+			{
+				clearInterval(this.player_timmers)
+				this.player_timmers = null;
+			}
+			
+			this.getGame();
+			this.get_game_timmer = setInterval(function() {
+				_this.getGame();
+			}, 15000); 
+		},
+		refreshPlay:function()
+		{
+			var me = this;
+			clearInterval(me.get_game_timmer)
+			me.get_game_timmer = null;
+			clearInterval(me.player_timmers)
+			me.player_timmers = null;
+			me.getGame();
+			me.get_game_timmer = setInterval(function() {
+				me.getGame();
+			}, 15000); 
+		},
+		getGame: function() {
+			var _this = this;
+			$.ajax({
+		         url: "http://f1.ss99.co/index.php?r=sys/server-time",
+		         type: "GET",
+		         dataType: "jsonp",
+		         jsonpCallback: "showData",  //指定回调函数名称
+		         success: function (res) {
+		            _this.getKJinfo(res)
+		         }
+		  });
+		},
+		getKJinfo: function(res) {
+			var _this = this;
+			$.ajax({
+		         url: "http://f1.ss99.co/kaijiang/ygsc.json?v=1558406231542",
+		         type: "GET",
+		         dataType: "json",
+		         success: function (data) {
+		         	if(_this.drawTime && data.drawTime != _this.drawTime)
+		         	{
+		         		//说明已经开奖
+		         		_this.drawTime = data.drawTime
+		         		_this.showWin(data)
+		         	}else{
+		         		var drawTime = data.drawTime
+		         		_this.drawTime = data.drawTime
+						drawTime = parseInt(new Date(drawTime).getTime()/1000);    // 当前时间戳
+						var djstime = drawTime - res.server_time
+						_this.countDown(djstime);//开盘状态需要倒计时
+						
+		         	}
+		         }
+			});
+		},
+		countDown:function (djstime) {
+			var _this = this
+			_this.setMyTime(djstime);
+			clearInterval(_this.player_timmers);
+			_this.player_timmers = null;
+			_this.player_timmers = setInterval(function () {
+				djstime--;
+				_this.setMyTime(djstime);
+			}, 1000);
+		},
+		setMyTime:function (time) {
+			var _this = this;
+			if(time == 0)
+			{
+				$("#daojishi").html("GO")
+			}else
+			{
+				$("#daojishi").html(time)
+			}
+			if(time<0)
+			{
+				$("#daojishi").hide()
+				if(_this.isRefreshGetData)
+				{
+					_this.isRefreshGetData = false
+					var t=null
+					t = setTimeout(function(){
+						_this.refreshPlay()
+						clearTimeout(t)
+						_this.isRefreshGetData = true
+					},1000)
+					
+				}
+				return false;
+			}else
+			{
+				
+				$("#daojishi").show()
+			}
+			var loadIsComplete= _this.sence.getloadIsComplete()
+			//如果倒计时4秒，那么就需要跑车了，开关打开
+			if(time == 4 )
+			{
+				_this.isPlaySence = false
+			}
+			if(loadIsComplete)
+			{
+				//如果当前动画还未播放
+				if(!_this.isPlaySence)
+				{
+					_this.isPlaySence = true
+					if(time ==4 )
+					{
+						//倒计时到第四秒的时候就需要跑车了
+						_this.paoche()
+					}else
+					{
+						//如果倒计时>4，那么要一直显示车载等待状态
+						_this.standby()
+					}
+				}
+				
+			}
+			
+			
+			
+		},
+		standby: function(res) {
+			//显示等待状态
+			this.sence.addplay("mainpage","standby",true)
+		},
+		paoche: function(res) {
+			//开始准备跑
+			this.sence.addplay("mainpage","ready",false)
+			//四秒后，显示赛道
+			this.sence.adddelyplay("mainpage","run_BG",4,false)
+			//四秒后，所有赛车开始跑
+			this.sence.delyAddPlayProup("car",4,true)
+		},
+		showWin : function(data){
+			var _this = this
+			
+			for(i in data.code){
+				var code = data.code[i]
+				var speedx = 0.5
+				if(i<=2)
+				{
+					speedx = 2-(i/2)
+					//给前三名开启加速特效
+					_this.sence.addplay("car"+code,"run_car"+ code +"_rush",true)
+				}
+				
+				//给第一名加快速度
+				_this.sence.setchildData({
+					name:"car"+code,
+					data:{
+						speedx : speedx,
+						fixed : true
+					}
+				})
+				
+			}
+			
+			//先把前三名动画播出来，再调整z，把他显示出来
+			//显示第一名
+			this.sence.addplay("NO1_Car","run_car"+data.code[0],true)
+			//显示第二名
+			this.sence.addplay("NO2_Car","win_car"+ data.code[1] +"_s",true)
+			//显示第三名
+			this.sence.addplay("NO3_Car","win_car"+ data.code[2] +"_s",true)
+			
+			//3秒后显示结束主场景
+			setTimeout(function(){
+				//显示结束背景
+				_this.sence.addplay("mainpage","finish")
+				_this.sence.resetGroup("car")
+				_this.sence.setz("NO1_Car",30)
+				_this.sence.setz("NO2_Car",25)
+				_this.sence.setz("NO3_Car",25)
+			},4000)
+			//10秒后，重置游戏画面，说明结束画面你用了15秒
+			setTimeout(function(){
+				_this.resetplay()
+				
+			},10000)
+		},
+		resetplay : function(){
+			this.sence.resetSence()
+			this.refreshPlay()
+			this.isPlaySence = false
+			$("#daojishi").show()
+		},
+	}
+	$(document).ready(function(){
+	 	saiche.init()
+	});
+
+	
+	
+	
+	
+</script>
+</body>
+</html>
